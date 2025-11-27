@@ -18,9 +18,14 @@
     - No argument: changes to `$HOME`
     - With argument: supports absolute and relative paths
   - `status`
-    - Reports exit status or terminating signal of the last foreground process
+    - Reports the exit status or terminating signal of the **last foreground, non–built-in command**
+    - If run before any such command, it reports `exit value 0`
   - `exit`
-    - Exits the shell and terminates any remaining child processes
+    - Exits the shell
+    - Terminates any background processes started by the shell before exiting
+  - For all built-ins:
+    - Input/output redirection is not supported
+    - If the user appends `&`, it is ignored and the command still runs in the foreground
 
 - **External commands**
   - Resolved via the system `PATH`
