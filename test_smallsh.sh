@@ -29,7 +29,7 @@ run_test() {
   # Feed scripted input into smallsh.
   # We allow smallsh to exit with non-zero without killing this script (hence '|| true').
   output="$(
-    printf "%s\n" "$script" | "$BIN" 2>&1 || true
+    printf "%s\n" "$script" | setsid "$BIN" 2>&1 || true
   )"
 
   if [[ -n "$expect" ]]; then
