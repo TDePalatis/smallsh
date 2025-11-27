@@ -55,4 +55,4 @@
 Requires a POSIX-like environment (Linux, macOS, WSL, etc.) and a C compiler:
 
 ```bash
-gcc -Wall -Wextra -std=c99 -o smallsh smallsh.c
+gcc -std=gnu99 -Wall -Wextra -o smallsh smallsh.c
