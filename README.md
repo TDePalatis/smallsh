@@ -1,63 +1,113 @@
-# smallsh – A Minimal Unix-Like Shell in C
+# smallsh — A Minimal Unix Shell in C
+A fully-functional command shell demonstrating process control, redirection, signals, and job management.
 
-`smallsh` is a compact Unix-style shell implemented in C. It supports command parsing, background/foreground processes, I/O redirection, and custom signal handling. This project demonstrates core systems programming skills: process control, signals, parsing, and manual memory management.
+`smallsh` is a custom Unix-like shell written in C as part of the Oregon State University CS 344: Operating Systems curriculum.
+It implements a core subset of Bash behavior, including:
 
----
+- Command parsing
+- Foreground & background execution
+- Input/output redirection
+- Custom built-ins (`exit`, `cd`, `status`)
+- Signal handling for `SIGINT` (Ctrl-C) and `SIGTSTP` (Ctrl-Z)
+- Process management using `fork()`, `exec()`, and `waitpid()`
 
 ## Features
 
-- **Command prompt & parsing**
-  - Prompt: `: `
-  - Up to 2048 characters per line
-  - Up to 512 arguments
-  - Ignores blank lines
-  - Supports comments starting with `#`
+### Command Execution
+- Executes external programs using `execvp()`
+- Spawns child processes via `fork()`
+- Captures exit status and termination signals
 
-- **Built-in commands**
-  - `cd [path]`
-    - No argument: changes to `$HOME`
-    - With argument: supports absolute and relative paths
-  - `status`
-    - Reports the exit status or terminating signal of the **last foreground, non–built-in command**
-    - If run before any such command, it reports `exit value 0`
-  - `exit`
-    - Exits the shell
-    - Terminates any background processes started by the shell before exiting
-  - For all built-ins:
-    - Input/output redirection is not supported
-    - If the user appends `&`, it is ignored and the command still runs in the foreground
+### Built-In Commands
 
-- **External commands**
-  - Resolved via the system `PATH`
-  - Executed with `fork()` + `execvp()`
-  - Prints `command: no such file or directory` on failure
+| Command | Description |
+|---------|-------------|
+| `exit`  | Terminates the shell, optionally killing all background processes |
+| `cd`    | Changes the working directory (`cd` alone → HOME) |
+| `status` | Prints the exit value or signal of the last foreground process |
 
-- **Foreground & background execution**
-  - `cmd &` runs in the background (unless in foreground-only mode)
-  - Background PIDs are printed when spawned
-  - Background jobs are tracked and reported when they finish
+### Input & Output Redirection
+Supports `<` and `>`:
 
-- **Input / output redirection**
-  - `< file` to redirect stdin
-  - `> file` to redirect stdout (creates/truncates the file)
-  - For background commands:
-    - If no input redirection is provided, stdin is redirected from `/dev/null`
-    - If no output redirection is provided, stdout is redirected to `/dev/null`
+```
+smallsh> sort < unsorted.txt > sorted.txt
+```
 
-- **Signal handling**
-  - `SIGINT` (`Ctrl+C`)
-    - Shell ignores `SIGINT`
-    - Foreground child processes are terminated and report `terminated by signal N`
-  - `SIGTSTP` (`Ctrl+Z`)
-    - Toggles *foreground-only* mode
-    - In foreground-only mode, `&` is ignored
-    - Prints messages when entering/exiting foreground-only mode
+Background commands default stdin/stdout to `/dev/null` when not specified.
 
----
+### Background Processes
+Commands ending with `&` run asynchronously:
 
-## Build
+```
+smallsh> sleep 10 &
+background pid is 12345
+```
 
-Requires a POSIX-like environment (Linux, macOS, WSL, etc.) and a C compiler:
+The shell tracks and reports completed background processes.
 
-```bash
-gcc -std=gnu99 -Wall -Wextra -o smallsh smallsh.c
+### Foreground-Only Mode (`SIGTSTP`)
+Pressing Ctrl-Z toggles foreground-only mode:
+
+```
+Entering foreground-only mode (& is now ignored)
+Exiting foreground-only mode
+```
+
+When active, `&` has no effect and all commands run in the foreground.
+
+### Signal Handling
+- Shell ignores SIGINT (Ctrl-C)
+- Foreground child processes receive SIGINT
+- SIGTSTP toggles foreground-only mode
+- Background processes are not interrupted by Ctrl-C
+
+## Key Concepts Demonstrated
+
+- Process creation & execution (`fork`, `execvp`)
+- Background job management (`waitpid`, `WNOHANG`)
+- File redirection using `open`, `dup2`
+- Signal handling with `sigaction`
+- Parsing input into tokens
+- Error handling & memory safety in C
+
+## File Structure
+
+```
+├── smallsh.c         # Main shell implementation
+├── test_smallsh.sh   # Automated test script (if included)
+└── README.md         # Project documentation
+```
+
+## Example Usage
+
+```
+$ smallsh
+: ls -l
+: echo hello > out.txt
+: cat < out.txt
+hello
+: sleep 5 &
+background pid is 10293
+: status
+exit value 0
+```
+
+Foreground-only mode:
+
+```
+^Z
+Entering foreground-only mode (& is now ignored)
+```
+
+## Skills Demonstrated
+
+- C systems programming
+- POSIX process control
+- Unix signals & handlers
+- Shell parsing & validation
+- Redirection and file descriptor management
+- Managing foreground/background processes
+
+## License
+
+This project was developed as part of university coursework and is provided for educational and portfolio purposes.
