@@ -77,6 +77,12 @@ When active, `&` has no effect and all commands run in the foreground.
 ├── test_smallsh.sh   # Automated test script (if included)
 └── README.md         # Project documentation
 ```
+## Build & Run
+
+```
+gcc -Wall -Wextra -o smallsh smallsh.c
+./smallsh
+```
 
 ## Example Usage
 
@@ -97,6 +103,15 @@ Foreground-only mode:
 ```
 ^Z
 Entering foreground-only mode (& is now ignored)
+```
+
+### Automated Tests
+
+Run the included test script (bash):
+
+```bash
+chmod +x test_smallsh.sh
+./test_smallsh.sh
 ```
 
 ## Skills Demonstrated
